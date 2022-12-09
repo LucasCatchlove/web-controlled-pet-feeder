@@ -27,7 +27,7 @@ function writeData() {
 function App() {
   const [name , setName] = useState();
   const [age , setAge] = useState();
-  const [state , setState] = useState(0);
+  const [state , setState] = useState(null);
   
 
   const Push = () => {
@@ -42,7 +42,7 @@ function App() {
 
   useEffect(() => {
    
-  const r = ref(db, 'test/int');
+  const r = ref(db, 'feeder_state');
   onValue(r, (snapshot) => {
     const data = snapshot.val();
     console.log(data)
@@ -65,7 +65,7 @@ function App() {
       <br/><br/> 
       <button onClick={Push}>PUSH</button>
       </center>
-      <p>int: {state}</p>
+      <p>{JSON.stringify(state)}</p>
     
     </div>
   );
