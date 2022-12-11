@@ -1,13 +1,13 @@
 //eslint-disable
 import { initializeApp } from "firebase/app";
-import { getDatabase, ref, onValue, set, child, get } from "firebase/database";
+import { getDatabase, ref, onValue, set, child, get, serverTimestamp } from "firebase/database";
 import { useState, useEffect } from "react";
 import "./App.css"
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBC1jxmcPnRllB9z6iuGsl6M417SgW0uCM",
-  projectId: "petfeeder-17c6c",
-  databaseURL: "https://petfeeder-17c6c-default-rtdb.firebaseio.com/"
+  apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
+  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
+  databaseURL: process.env.REACT_APP_FIREBASE_URL
 };
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
@@ -20,6 +20,7 @@ function App() {
   const [password, setPassword] = useState('');
   const [feederState, setFeederState] = useState(null);
   const [feedingQuantity, setFeedingQuantity] = useState(0);
+  const [feedingInterval, setFeedingInterval] = useState(0);
 
   const handleLogin = () => {
     get(child(ref(db), "feeder_state/auth")).then(res => {
@@ -47,18 +48,16 @@ function App() {
 
   const feed = (quantity) => {
     set(ref(db, 'feeder_state/feed'), parseInt(feedingQuantity));
+    set(ref(db, 'feeder_state/feed_quantity'), parseInt(feedingQuantity));
   }
 
   useEffect(() => {
-
     const r = ref(db, 'feeder_state');
     onValue(r, (snapshot) => {
       const data = snapshot.val();
       setFeederState(data);
     });
   }, [])
-
-
 
   return (
     <div className="container">
@@ -93,20 +92,29 @@ function App() {
             </>
             : "loading..."}
         </div>
-        <div className="Controls Card">
+        <div className="Feeding Controls Card">
           <h2>Controls</h2>
           <div>
-            <input type="radio" id="sm-portion" name="portion" value={1} onChange={handleQuantityUpdate} />
+            <input type="radio" id="sm-portion" name="portion" value={1} onChange={handleQuantityUpdate} checked={feederState.feed_quantity === 1} />
             <label for="sm">small portion</label>
           </div>
           <div>
-            <input type="radio" id="md-portion" name="portion" value={2} onChange={handleQuantityUpdate} />
+            <input type="radio" id="md-portion" name="portion" value={2} onChange={handleQuantityUpdate} checked={feederState.feed_quantity === 2}/>
             <label for="md">medium portion</label>
           </div>
 
           <div>
-            <input type="radio" id="lg-portion" name="portion" value={3} onChange={handleQuantityUpdate} />
+            <input type="radio" id="lg-portion" name="portion" value={3} onChange={handleQuantityUpdate} checked={feederState.feed_quantity === 3}/>
             <label for="lg">large portion</label>
+          </div>
+
+            <div>
+          
+
+          every <input type="time" id="feedInterval"/> hours
+          starting at <input type="time" id="feedInterval"/>
+
+          
           </div>
 
           <button className="FeedButton" onClick={feed}>feed pet</button>
