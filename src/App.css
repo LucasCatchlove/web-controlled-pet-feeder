@@ -1,7 +1,11 @@
+.container {
+  padding-top: 20%;
+}
+
 .App {
   text-align: center;
   display: flex; 
-align-items: center;
+  align-items: center;
   flex-direction: column;
   padding: 5% 5%; 
 }
@@ -32,7 +36,7 @@ align-items: center;
   margin: 5% 5%; 
 }
 
-.FeedButton {
+.FeedButton, .LogoutButton, .LoginButton {
 cursor: pointer;
 outline: 0;
 color: #fff;
@@ -53,3 +57,30 @@ transition: color .15s ease-in-out,background-color .15s ease-in-out,border-colo
     background-color: #0b5ed7;
     border-color: #0a58ca;
 }
+
+.LogoutButton, .LoginButton {
+  cursor: pointer;
+  outline: 0;
+  color: #fff;
+  background-color: #a8a8a8;
+  border-color: #a8a8a8;
+  display: inline-block;
+  font-weight: 400;
+  line-height: 1.5;
+  text-align: center;
+  border: 1px solid transparent;
+  padding: 6px 12px;
+  font-size: 16px;
+  border-radius: .25rem;
+  transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+  }
+  .FeedButton:hover {
+      color: #fff;
+      background-color: #787878;
+      border-color: #787878;
+  }
+
+  .LoginForm {
+    margin-top: 30%;
+  }
+  
