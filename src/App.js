@@ -44,11 +44,12 @@ function App() {
 
   const handleQuantityUpdate = (e) => {
     setFeedingQuantity(e.target.value)
+    set(ref(db, 'feeder_state/feed_quantity'), parseInt(feedingQuantity));
+    set(ref(db, 'feeder_state/feed_quantity'), parseInt(feedingQuantity));
   }
 
   const feed = (quantity) => {
     set(ref(db, 'feeder_state/feed'), parseInt(feedingQuantity));
-    set(ref(db, 'feeder_state/feed_quantity'), parseInt(feedingQuantity));
   }
 
   useEffect(() => {
@@ -56,6 +57,7 @@ function App() {
     onValue(r, (snapshot) => {
       const data = snapshot.val();
       setFeederState(data);
+      setFeedingQuantity(data.feed_quantity);
     });
   }, [])
 
@@ -95,11 +97,11 @@ function App() {
         <div className="Feeding Controls Card">
           <h2>Controls</h2>
           <div>
-            <input type="radio" id="sm-portion" name="portion" value={1} onChange={handleQuantityUpdate} checked={feederState.feed_quantity === 1} />
+            <input type="radio" id="sm-portion" name="portion" value={1} onChange={handleQuantityUpdate} checked={feedingQuantity == 1} />
             <label for="sm">small portion</label>
           </div>
           <div>
-            <input type="radio" id="md-portion" name="portion" value={2} onChange={handleQuantityUpdate} checked={feederState.feed_quantity === 2}/>
+            <input type="radio" id="md-portion" name="portion" value={2} onChange={handleQuantityUpdate} checked={feedingQuantity ==2}/>
             <label for="md">medium portion</label>
           </div>
 
