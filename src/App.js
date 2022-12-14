@@ -22,6 +22,7 @@ function App() {
   const [feedingQuantity, setFeedingQuantity] = useState(0);
   const [feedingInterval, setFeedingInterval] = useState(0);
 
+
   const handleLogin = () => {
     get(child(ref(db), "feeder_state/auth")).then(res => {
       if (res.exists()) {
@@ -45,7 +46,6 @@ function App() {
   const handleQuantityUpdate = (e) => {
     setFeedingQuantity(e.target.value)
     set(ref(db, 'feeder_state/feed_quantity'), parseInt(feedingQuantity));
-    set(ref(db, 'feeder_state/feed_quantity'), parseInt(feedingQuantity));
   }
 
   const feed = (quantity) => {
@@ -57,74 +57,75 @@ function App() {
     onValue(r, (snapshot) => {
       const data = snapshot.val();
       setFeederState(data);
-      setFeedingQuantity(data.feed_quantity);
     });
   }, [])
 
   return (
     <div className="container">
-    <center>
-      <h1>Pet Feeder 1.0 🐶</h1>
-    </center>
-    
-
-      {!loggedIn ?
       <center>
-      <div className="LoginForm">
-        <input placeholder="username" value={username}
-          onChange={(e) => setUsername(e.target.value)} />
-        <br /><br />
-        <input placeholder="password" type="password"
-          onChange={(e) => setPassword(e.target.value)} />
-        <br /><br />
-        <button onClick={handleLogin} className="LoginButton">Login</button>
-      </div>
+        <h1>Pet Feeder 1.0 🐶</h1>
       </center>
 
-      :
 
-      <div className="App">
-        <div className="DeviceStatus Card">
-          <h2>Device Status</h2>
-          {feederState ?
-            <>
-              <div>{feederState.connected ? "connected ✅" : "not connected  🛑"}</div>
-              <div>Food container level: <b>{feederState.food_container_level}</b></div>
-              <div>{feederState.space_in_bowl ? "bowl is almost empty " : "bowl is full"}</div>
-            </>
-            : "loading..."}
-        </div>
-        <div className="Feeding Controls Card">
-          <h2>Controls</h2>
-          <div>
-            <input type="radio" id="sm-portion" name="portion" value={1} onChange={handleQuantityUpdate} checked={feedingQuantity == 1} />
-            <label for="sm">small portion</label>
+      {!loggedIn ?
+        <center>
+          <div className="LoginForm">
+            <input placeholder="username" value={username}
+              onChange={(e) => setUsername(e.target.value)} />
+            <br /><br />
+            <input placeholder="password" type="password"
+              onChange={(e) => setPassword(e.target.value)} />
+            <br /><br />
+            <button onClick={handleLogin} className="LoginButton">Login</button>
           </div>
-          <div>
-            <input type="radio" id="md-portion" name="portion" value={2} onChange={handleQuantityUpdate} checked={feedingQuantity ==2}/>
-            <label for="md">medium portion</label>
-          </div>
+        </center>
 
-          <div>
-            <input type="radio" id="lg-portion" name="portion" value={3} onChange={handleQuantityUpdate} checked={feederState.feed_quantity === 3}/>
-            <label for="lg">large portion</label>
+        :
+
+        <div className="App">
+          <div className="DeviceStatus Card">
+            <h2>Device Status</h2>
+            {feederState ?
+              <>
+                <div>{feederState.connected ? "connected ✅" : "not connected  🛑"}</div>
+                <div>Food container level: {feederState.food_container_level >= 17 ? "food container is almost empy!" : `${Math.floor(20-feederState.food_container_level)} cm`}</div>
+                <div>{feederState.food_in_bowl_grams < 40 ?
+                 `Bowl is almost empty! ${feederState.food_in_bowl_grams < 0 ? Math.ceil(feederState.food_in_bowl_grams) : Math.floor(feederState.food_in_bowl_grams)}g currently in bowl`
+                  : `bowl has food in it. ${Math.floor(feederState.food_in_bowl_grams)}g currently in bowl`}</div>
+              </>
+              : "loading..."}
           </div>
+          <div className="Feeding Controls Card">
+            <h2>Controls</h2>
+            <div>
+              <input type="radio" id="sm-portion" name="portion" value={1} onChange={handleQuantityUpdate} />
+              <label for="sm">small portion</label>
+            </div>
+            <div>
+              <input type="radio" id="md-portion" name="portion" value={2} onChange={handleQuantityUpdate} />
+              <label for="md">medium portion</label>
+            </div>
 
             <div>
-          
+              <input type="radio" id="lg-portion" name="portion" value={3} onChange={handleQuantityUpdate} />
+              <label for="lg">large portion</label>
+            </div>
 
-          every <input type="time" id="feedInterval"/> hours
-          starting at <input type="time" id="feedInterval"/>
+            <div>
 
-          
+
+              every <input type="number" class="ScheduleFeedInterval" onChange={e => setFeedingInterval(e.target.value)} /> hours
+              starting at <input type="time" class="ScheduleStartTime" />
+
+
+            </div>
+
+            <button className="FeedButton" onClick={feed}>feed pet</button>
+
           </div>
 
-          <button className="FeedButton" onClick={feed}>feed pet</button>
-
-        </div>
-
-        <button className="LogoutButton" onClick={handleLogout}>log out</button>
-      </div>}
+          <button className="LogoutButton" onClick={handleLogout}>log out</button>
+        </div>}
     </div>
   );
 }
