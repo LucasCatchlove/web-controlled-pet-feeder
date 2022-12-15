@@ -37,8 +37,10 @@
   margin: 5% 5%; 
 }
 
-.FeedButton {
+.ControlButton {
 cursor: pointer;
+max-width: 40%;
+margin: 4% 4%; 
 outline: 0;
 color: #fff;
 background-color: #0d6efd;
@@ -53,9 +55,23 @@ font-size: 16px;
 border-radius: .25rem;
 transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
 }
-.FeedButton:hover {
+.ControlButton:hover {
     color: #fff;
     background-color: #6aa4fb;
+}
+
+.ControlButtons {
+  padding: 0 3%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  flex-wrap: wrap;
+}
+
+.ControlButtons button:last-child {
+  color: #fff;
+  background-color: #40b450;
+  justify-self: center;
 }
 
 .LogoutButton, .LoginButton {

@@ -1,6 +1,7 @@
 //eslint-disable
 import { initializeApp } from "firebase/app";
-import { getDatabase, ref, onValue, set, child, get, serverTimestamp } from "firebase/database";
+import { getDatabase, ref, onValue, set, child, get } from "firebase/database";
+import moment from "moment";
 import { useState, useEffect } from "react";
 import "./App.css"
 
@@ -14,6 +15,8 @@ const app = initializeApp(firebaseConfig);
 // Initialize Realtime Database and get a reference to the service
 const db = getDatabase(app);
 
+
+
 function App() {
   const [loggedIn, setLoginStatus] = useState(false);
   const [username, setUsername] = useState('');
@@ -21,6 +24,8 @@ function App() {
   const [feederState, setFeederState] = useState(null);
   const [feedingQuantity, setFeedingQuantity] = useState(0);
   const [feedingInterval, setFeedingInterval] = useState(0);
+  const [scheduledFeedingTime, setScheduledFeedingTime] = useState(0);
+  const [startTime, setStartTime] = useState('');
 
 
   const handleLogin = () => {
@@ -48,7 +53,7 @@ function App() {
     set(ref(db, 'feeder_state/feed_quantity'), parseInt(feedingQuantity));
   }
 
-  const feed = (quantity) => {
+  const feed = () => {
     set(ref(db, 'feeder_state/feed'), parseInt(feedingQuantity));
   }
 
@@ -59,6 +64,25 @@ function App() {
       setFeederState(data);
     });
   }, [])
+
+  const scheduleFeedings = () => {
+    console.log(startTime)
+    set(ref(db, 'feeder_state/feeding_quantity'), parseInt(feedingQuantity));
+    set(ref(db, 'feeder_state/scheduling/active'), true);
+    set(ref(db, 'feeder_state/scheduling/start_time'), startTime);
+    set(ref(db, 'feeder_state/scheduling/time_until_start_millis'), parseInt(moment().diff(scheduledFeedingTime)));
+    set(ref(db, 'feeder_state/scheduling/feeding_interval_hours'), parseFloat(feedingInterval));
+
+    /*uncomment for normal operation
+    set(ref(db, 'feeder_state/scheduling/feeding_interval_millis'), parseInt(feedingInterval*3600*1000));*/
+
+    //demo purposes only --> spoofs hours as minutes
+    set(ref(db, 'feeder_state/scheduling/feeding_interval_millis'), parseInt(feedingInterval * 60 * 1000));
+  }
+
+  const deleteSchedule = () => {
+    set(ref(db, 'feeder_state/scheduling/active'), false);
+  }
 
   return (
     <div className="container">
@@ -87,11 +111,13 @@ function App() {
             <h2>Device Status</h2>
             {feederState ?
               <>
-                <div>{feederState.connected ? "connected ✅" : "not connected  🛑"}</div>
-                <div>Food container level: {feederState.food_container_level >= 17 ? "food container is almost empy!" : `${Math.floor(20-feederState.food_container_level)} cm`}</div>
-                <div>{feederState.food_in_bowl_grams < 40 ?
-                 `Bowl is almost empty! ${feederState.food_in_bowl_grams < 0 ? Math.ceil(feederState.food_in_bowl_grams) : Math.floor(feederState.food_in_bowl_grams)}g currently in bowl`
-                  : `bowl has food in it. ${Math.floor(feederState.food_in_bowl_grams)}g currently in bowl`}</div>
+                <div>Food container level: <b>{feederState.food_container_level >= 17 ? `food container is almost empty! 🚨 ${Math.floor(20 - feederState.food_container_level)} cm ` : `${Math.floor(20 - feederState.food_container_level)} cm`}</b></div>
+                <div><b>{feederState.food_in_bowl_grams < 40 ?
+                  `Bowl is almost empty! 🚨  ${feederState.food_in_bowl_grams < 0 ? 0 : Math.floor(feederState.food_in_bowl_grams)}g currently in bowl`
+                  : `bowl has food in it 🍲 ${Math.floor(feederState.food_in_bowl_grams)}g currently in bowl`}</b></div>
+                  {feederState.scheduling.active ? <p>✅ feedings scheduled for <b>{moment(feederState.scheduling.start_time).format('LT')} </b>
+              every <b>{feederState.scheduling.feeding_interval_hours} hours </b></p>
+                : <p>🛑 no scheduled feeding time</p>}
               </>
               : "loading..."}
           </div>
@@ -113,19 +139,22 @@ function App() {
 
             <div>
 
-
               every <input type="number" class="ScheduleFeedInterval" onChange={e => setFeedingInterval(e.target.value)} /> hours
-              starting at <input type="time" class="ScheduleStartTime" />
-
+              starting at <input type="datetime-local" class="ScheduleStartTime" onChange={e => setStartTime(e.target.value)} />
 
             </div>
+            <div className="ControlButtons">
+              <button className="ControlButton" onClick={scheduleFeedings}>schedule feeding time</button>
+              <button className="ControlButton" onClick={deleteSchedule}>remove schedule</button>
+              <button className="ControlButton" onClick={feed}>feed pet</button>
+            </div>
 
-            <button className="FeedButton" onClick={feed}>feed pet</button>
 
           </div>
 
           <button className="LogoutButton" onClick={handleLogout}>log out</button>
-        </div>}
+        </div>
+      }
     </div>
   );
 }
