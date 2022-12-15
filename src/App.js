@@ -3,6 +3,7 @@ import { getDatabase, ref, onValue, set, child, get } from "firebase/database";
 import { useState, useEffect } from "react";
 import "./App.css"
 
+//firebase configuration
 const firebaseConfig = {
   apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
   projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
@@ -13,7 +14,7 @@ const app = initializeApp(firebaseConfig);
 // Initialize Realtime Database and get a reference to the service
 const db = getDatabase(app);
 
-//main app
+//main app component
 function App() {
   const [loggedIn, setLoginStatus] = useState(false);
   const [username, setUsername] = useState('');
@@ -22,6 +23,7 @@ function App() {
   const [feedingQuantity, setFeedingQuantity] = useState(0);
   const [feedingInterval, setFeedingInterval] = useState(0);
 
+  //handles login request
   const handleLogin = () => {
     get(child(ref(db), "feeder_state/auth")).then(res => {
       if (res.exists()) {
@@ -36,22 +38,26 @@ function App() {
     });
   }
 
+  //handles logout request
   const handleLogout = () => {
     setLoginStatus(false);
     setUsername("");
     setPassword("");
   }
 
+  //updates quantity of food to be dispensed
   const handleQuantityUpdate = (e) => {
     setFeedingQuantity(e.target.value)
     set(ref(db, 'feeder_state/feed_quantity'), parseInt(feedingQuantity));
     set(ref(db, 'feeder_state/feed_level'), feedingLevelfromQuantity(parseInt(e.target.value)));
   }
 
+  //sends command to device to dispense food
   const feed = () => {
     set(ref(db, 'feeder_state/feed'), parseInt(feedingQuantity));
   }
 
+  //estblishes socket connection with firebase realtime db
   useEffect(() => {
     const r = ref(db, 'feeder_state');
     onValue(r, (snapshot) => {
@@ -60,8 +66,9 @@ function App() {
     });
   }, [])
 
+  //sets up scheduled feedings
   const scheduleFeedings = () => {
-    set(ref(db, 'feeder_state/feeding_quantity'), parseInt(feedingQuantity));
+    set(ref(db, 'feeder_state/feed_quantity'), parseInt(feedingQuantity));
     set(ref(db, 'feeder_state/scheduling/active'), true);
     set(ref(db, 'feeder_state/scheduling/feeding_interval_hours'), parseFloat(feedingInterval));
 
@@ -72,10 +79,12 @@ function App() {
     set(ref(db, 'feeder_state/scheduling/feeding_interval_millis'), parseInt(feedingInterval * 60 * 1000));
   }
 
+  //removes scheduled feedings
   const deleteSchedule = () => {
     set(ref(db, 'feeder_state/scheduling/active'), false);
   }
 
+  //utility to convert numeric feeding value to its descriptive equivalent
   const feedingLevelfromQuantity = quantity => {
       switch(quantity) {
         case 1: return "small"
@@ -91,7 +100,7 @@ function App() {
         <h1>Pet Feeder 1.0 🐶</h1>
       </center>
 
-
+      {/* login screen markup */}
       {!loggedIn ?
         <center>
           <div className="LoginForm">
@@ -107,6 +116,7 @@ function App() {
 
         :
 
+        // main application markup
         <div className="App">
           <div className="DeviceStatus Card">
             <h2>Device Status</h2>
