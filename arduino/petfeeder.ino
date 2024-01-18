@@ -14,16 +14,16 @@
 #include "addons/RTDBHelper.h"
 
 // Insert your network credentials
-#define WIFI_SSID "CHEZ_LUC"
-#define WIFI_PASSWORD "19216811"
+#define WIFI_SSID "ssid_here"
+#define WIFI_PASSWORD "wifi_pwd_here"
 // #define WIFI_SSID "Lucas"
 // #define WIFI_PASSWORD "12345678"
 
 // Insert Firebase project API Key
-#define API_KEY "AIzaSyBC1jxmcPnRllB9z6iuGsl6M417SgW0uCM"
+#define API_KEY "your_api_key_here"
 
 // Insert RTDB URLefine the RTDB URL */
-#define DATABASE_URL "https://petfeeder-17c6c-default-rtdb.firebaseio.com"
+#define DATABASE_URL "your-firebase-rtdb.firebaseio.com"
 
 //Define Firebase Data object
 FirebaseData fbdo;
